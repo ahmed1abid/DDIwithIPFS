@@ -1,0 +1,9 @@
+yaml
+json
+truffle
+ganache
+requests 
+pinatapy-vourhey
+load_dotenv
+ipfsapi
+ipfshttpclient
