@@ -163,3 +163,6 @@ This part involves the creation of an Albatross VM using the signed user request
     Create the Albatross VM:
 
  albatross-client create VMNAME 0xe4328460e96652d414a632c29c1034c6052c2510 --ca=user.pem --ca-key=user.pem --server-ca=cacert.pem --destination http://127.0.0.1:8545 --net=service --mem=128 --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254" --arg="--port=8443" --arg="--remote=https://github.com/ahmed1abid/DDIwithIPFS.git" --arg="--ssh-authenticator=SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU" --arg="--ssh-key=ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8=" --arg="--tls=false" --arg="--hook=/updatewebhook"
+
+
+npx ganache -d --gasLimit 8000000000000 --miner.callGasLimit 80000000000

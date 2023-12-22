@@ -1,68 +1,77 @@
-from web3 import Web3
-import json
+# def get_file_from_blockchain():
+#     try:
+#         # Check if the contract is deployed
+#         if not is_contract_deployed(contract_address):
+#             print("Contract not deployed. Please deploy the contract first.")
+#             return None
 
-class Maker :
-	def __init__(self, maker_addr):
-		self.infura_url = 'https://ropsten.infura.io/v3/5466c106de5f40678f6b1b3b075bb7d0'
-		self.web3 = Web3(Web3.HTTPProvider(self.infura_url))
+#         # Call the getStoredFileData function
+#         (sender_address, file_content_length) = data_registry.functions.getStoredFileData().call()
 
+#         # Call the getStoredFile function to get the file content
+#         stored_file_content_bytes = data_registry.functions.getStoredFile().call()
 
-		self.maker_abi = json.loads(open('maker.abi','r').read())
-		self.certi_abi = json.loads(open('Certificate.abi','r').read())
+#         # Convert bytes to a hexadecimal string
+#         stored_file_content_hex = binascii.hexlify(stored_file_content_bytes).decode()
 
-		self.publicKey = '0xa9CaB16aC067306130A7f907fDc7CA51380525df'
-		self.privateKey = '0x699a2dac916510b98a79b05a2c4cfae785578caaeadd1b13f41ff6b91eb1ef60'
+#         # Ensure the hex string has an even length before converting
+#         stored_file_content_hex = '0' + stored_file_content_hex if len(stored_file_content_hex) % 2 != 0 else stored_file_content_hex
 
+#         # Convert hexadecimal string to binary
+#         stored_file_content = binascii.unhexlify(stored_file_content_hex)
 
-		self.add = self.web3.toChecksumAddress(maker_addr)
+#         # Save the binary content to a file
+#        
 
-		self.makerContract = self.web3.eth.contract(address= self.add, abi = self.maker_abi)
+#         print(f"File retrieved from sender {sender_address} with length {file_content_length} and saved successfully to {file_path}.")
 
-
-	def issueCertificate(self, merkelHash):
-		txn = self.makerContract.functions.issueCertificate(merkelHash).buildTransaction()
-		tx_count = self.web3.eth.getTransactionCount(self.publicKey)
-		txn['nonce'] = hex(tx_count)
-		# print(txn)
-		signed = self.web3.eth.account.signTransaction(txn, self.privateKey)
-
-		txn_hash = self.web3.eth.sendRawTransaction(signed.rawTransaction)
-
-		txn_object = self.web3.eth.getTransaction(txn_hash)
-
-		print("Transaction submitted. waiting for confirmation...")
+#     except Exception as e:
+#         print("Error retrieving file from the blockchain.")
+#         print(e)
 
 
-		while(txn_object['blockNumber'] == None):
-			txn_object = self.web3.eth.getTransaction(txn_hash)
-			
-		certificate_address = self.makerContract.functions.getRecentCertificate().call()
 
 
-		return certificate_address
+# def send_file_to_blockchain(file_path):
+#     global user, w3, data_registry, user_address
 
-	def getHash(self, certificate_address):
-		certificate_address = str(certificate_address)
-		t_certificate_address = self.web3.toChecksumAddress(certificate_address)
-		certi_contract = self.web3.eth.contract(address = t_certificate_address, abi = self.certi_abi)
-		return certi_contract.functions.getHash().call()
+#     # Check if file path provided
+#     if not file_path:
+#         print("File path not provided.")
+#         return
+
+#     try:
+#         # Read the file content as bytes
+#         with open(file_path, 'rb') as file:
+#             file_content = file.read()
+
+#     except FileNotFoundError:
+#         print(f"File not found: {file_path}")
+#         return
+
+#     # Get nonce and chain ID
 
 
-'''
-if __name__ == '__main__':
-	maker = Maker('0x9e7cd1df366a5d315e0f42d3d3e3100943281cb0')
+#     # Divide the file into 5 chunks
+#     chunk_size = len(file_content) // 100
+#     for i in range(100):
+#         nonce = w3.eth.get_transaction_count(user_address)
+#         chain_id = w3.eth.chain_id
+#         start = i * chunk_size
+#         end = (i + 1) * chunk_size if i < 99 else len(file_content)
+#         chunk = file_content[start:end]
+#         print(f"Chunk {i + 1} length: {len(chunk)}")
+#         # Encode the function call for each chunk
+#         transaction = data_registry.functions.storeFile(chunk).build_transaction({
+#             'gas': 9000000000,  
+#             'gasPrice': 20000000000,
+#             'from': user_address,
+#             'nonce': nonce,
+#             'chainId': chain_id
+#         })
 
-	# Input String to create Certificate
-	# str_input = input("Please enter Merkel Root:")
-	str_input = 'Hello!'
-	add = maker.issueCertificate(str_input)
-	print("New Certificate issued.\nCertificate Address:", add)
+#         # Send transaction
+#         tx_hash = w3.eth.send_transaction(transaction)
+#         print(f"Chunk {i + 1} sent to the blockchain. Transaction Hash: {tx_hash}")
 
-
-	# Print string from the certificate just created
-	str_out = maker.getHash(add)
-	print(str_input)
-	print(str_out == str_input)
-	# print("Your daily fortune result is:", string)
-
-'''
+#    print("File sent to the blockchain successfully.")

@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.23;
 
 contract DataRegistry {
-  
-    string public storedData;
 
-    event FileStored(address indexed sender, string filePath);
+    bytes public storedFileData;
+    event FileStored(address indexed sender, uint256 fileContentLength);
 
-    function storeData(string memory newData) public {
-        storedData = newData;
+    function storeFile(bytes memory fileContent) public {
+        storedFileData = abi.encodePacked(storedFileData, fileContent);
+        emit FileStored(msg.sender, fileContent.length);
     }
 
-    function getStoredData() public view returns (string memory) {
-        return storedData;
+    function getStoredFileData() public view returns (address, uint256) {
+        return (msg.sender, storedFileData.length);
     }
-    
-    function storeFile(string memory filePath) public {
-        emit FileStored(msg.sender, filePath);
+
+    function getStoredFile() public view returns (bytes memory) {
+        return storedFileData;
     }
 }
