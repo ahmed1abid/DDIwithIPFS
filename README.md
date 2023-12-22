@@ -1,4 +1,4 @@
-# Decentalized Identity Management System
+local_50# Decentalized Identity Management System
 
 ## How to use
 
@@ -114,26 +114,55 @@ Under the hood, what you basically want to do for seting up a similar architectu
     Of course, you also should check the shasum hashes (they are on the builds.robur website) for validating you got unmodified binaries :)
     Create a tap interface for connecting your unikernel to the external world
 
-    $ sudo ip link add service type bridge
-    $ sudo ip link set dev service-master master service
-    $ sudo ip addr add 10.0.0.254/24 dev service
-    $ sudo ip link set dev service up
-    $ sudo sysctl -w net.ipv4.ip_forward=1
-    $ sudo iptables -t nat -I POSTROUTING -s 10.0.0.0/24 -j MASQUERADE
-    $ sudo iptables -t nat -I PREROUTING -p tcp --dport 8443 -j DNAT --to-destination 10.0.0.10
+    sudo mkdir -p /run/albatross/util/
+    sudo chown albatross:albatross /run/albatross/util
+    sudo systemctl start albatross_daemon
+    sudo systemctl start albatross_consol
+    sudo ip link add service type bridge
+    sudo ip link set dev service-master master service
+    sudo ip addr add 10.0.0.254/24 dev service
+    sudo ip link set dev service up
+    sudo sysctl -w net.ipv4.ip_forward=1
+    sudo iptables -t nat -I POSTROUTING -s 10.0.0.0/24 -j MASQUERADE
+    sudo iptables -t nat -I PREROUTING -p tcp --dport 8443 -j DNAT --to-destination 10.0.0.10
 
     Here 10.0.0.254 is our gateway for every unikernels, and we have to set a nat masquerade for allowing the unipi unikernel to retrieve the remote git content. The PREROUTING rule permit to redirect the incomming 8443 port to our unipi unikernel.
     Start the unikernel, telling him where to get the content
 
-    $ albatross-client create --net=service --mem=128 \
-      --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254" \
-      --arg="--port=1234" --arg="--remote=https://yougitrepository" \
-      --arg="--ssh-authenticator=yourepositoryfingerprint" \
-      --arg="--ssh-key=yourrepositoryprivatekey" \
-      --arg="--tls=false" --arg="--hook=/updatewebhook" \
-      VMNAME unipi.spt
+      sudo  albatross-client  create --net=service --mem=128       --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254"       --arg="--port=8443" --arg="--remote=https://github.com/ahmed1abid/DDIwithIPFS.git"       --arg="--ssh-authenticator=SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"       --arg="--ssh-key=ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8="       --arg="--tls=false" --arg="--hook=/updatewebhook"       VMNAME unipi.hvt
+
 
     You can get the ssh-authenticator with the command: ssh-keygen -lf <(ssh-keyscan -t ed25519 remote-host 2>/dev/null). Your ssh-key is only needed if your repository isn't publicly visible (in the ed25519 format, you can use the tool awa_gen_key to produce a random seed and public key).
     Read the console logs and enjoy!
 
     $ albatross-client console VMNAME
+
+Local (On Your Machine):
+
+This part involves the initial setup and creating a certificate signing request (CSR) for your user.
+
+    Generate the root CA certificate and server keypair:
+
+
+albatross-client generate ca db
+
+Create a signing request for your user:
+
+
+albatross-client add_policy user 16 --mem 1024 --cpu 0 --cpu 1 --csr
+
+Sign the user's request by the CA:
+
+albatross-client sign cacert.pem db ca.key user.req
+
+
+    Remote (On the Blockchain Node or Ganache CLI):
+
+This part involves the creation of an Albatross VM using the signed user request.
+
+    Create the Albatross VM:
+
+ albatross-client create VMNAME 0xe4328460e96652d414a632c29c1034c6052c2510 --ca=user.pem --ca-key=user.pem --server-ca=cacert.pem --destination http://127.0.0.1:8545 --net=service --mem=128 --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254" --arg="--port=8443" --arg="--remote=https://github.com/ahmed1abid/DDIwithIPFS.git" --arg="--ssh-authenticator=SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU" --arg="--ssh-key=ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8=" --arg="--tls=false" --arg="--hook=/updatewebhook"
+
+
+npx ganache -d --gasLimit 8000000000000 --miner.callGasLimit 80000000000
