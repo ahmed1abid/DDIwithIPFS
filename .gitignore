@@ -3,3 +3,7 @@ _pycache_
 node_modules
 .env 
 unipi 
+*.key
+*.pem
+*.req
+/key
