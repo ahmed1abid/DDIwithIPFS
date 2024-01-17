@@ -129,7 +129,7 @@ Under the hood, what you basically want to do for seting up a similar architectu
     Here 10.0.0.254 is our gateway for every unikernels, and we have to set a nat masquerade for allowing the unipi unikernel to retrieve the remote git content. The PREROUTING rule permit to redirect the incomming 8443 port to our unipi unikernel.
     Start the unikernel, telling him where to get the content
 
-      sudo  albatross-client  create --net=service --mem=128       --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254"       --arg="--port=8443" --arg="--remote=s  "       --arg="--ssh-authenticator=SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"       --arg="--ssh-key=ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8="       --arg="--tls=false" --arg="--hook=/updatewebhook"       VMNAME unipi.hvt
+      sudo  albatross-client  create --net=service --mem=128       --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254"       --arg="--port=8443" --arg="--remote=https:/140.82.121.4/ahmed1abid/DDIwithIPFS.git"       --arg="--ssh-authenticator=SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"       --arg="--ssh-key=ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8="       --arg="--tls=false" --arg="--hook=/updatewebhook"       VMNAME unipi.hvt
 
 
     You can get the ssh-authenticator with the command: ssh-keygen -lf <(ssh-keyscan -t ed25519 remote-host 2>/dev/null). Your ssh-key is only needed if your repository isn't publicly visible (in the ed25519 format, you can use the tool awa_gen_key to produce a random seed and public key).

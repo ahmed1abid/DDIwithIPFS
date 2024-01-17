@@ -288,7 +288,10 @@ async def create_vm_with_unipi():
         "--arg=--ssh-authenticator=" + ssh_authenticator,
         "--arg=--ssh-key=" + ssh_key,
         "--arg=--tls=false",
-        "--arg=--hook=/updatewebhook"
+        "--arg=--hook=/updatewebhook",
+        "--arg=-l debug",
+        "--arg=--ipv4-only=true"
+
     ])
     os.remove('unipi.hvt')
 
