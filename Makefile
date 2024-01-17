@@ -10,17 +10,9 @@ TRUFFLE_CONFIG = truffle-config.js
 
 GANACHE_DB = nodesblockchain.json
 
-# Run the user CLI
-run-user:
-	./cli
-
-# Run the issuer CLI
-run-issuer:
-	./issuer_cli
-
 # Start the Ganache development blockchain
 start-ganache:
-	npx $(GANACHE)  -d --gasLimit 900000000000 --miner.callGasLimit 90000000000 --db  $(GANACHE_DB)
+	$(GANACHE)  -d --gasLimit 900000000000 --miner.callGasLimit 90000000000 --db  $(GANACHE_DB)
 
 # Deploy smart contracts using Truffle
 deploy-contracts:
@@ -47,3 +39,4 @@ build:
 
 # Phony targets
 .PHONY: run run-issuer install-python-deps start-ganache deploy-contracts compile-contracts build
+

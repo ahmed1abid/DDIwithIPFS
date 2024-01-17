@@ -1,9 +1,7 @@
-yaml
-json
+pyyaml
 truffle
-ganache
 requests 
 pinatapy-vourhey
 load_dotenv
-ipfsapi
-ipfshttpclient
+aiohttp
+web3

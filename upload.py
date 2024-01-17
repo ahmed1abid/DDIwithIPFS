@@ -75,3 +75,21 @@
 #         print(f"Chunk {i + 1} sent to the blockchain. Transaction Hash: {tx_hash}")
 
 #    print("File sent to the blockchain successfully.")
+
+
+# def generate_ca():
+#     # Generate the root CA certificate and server keypair
+#     subprocess.run(["albatross-client", "generate", "ca", "db"])
+
+# def server_start_endpoint():
+#     # Server starts the endpoint using the server keypair and the root CA certificate
+#     subprocess.run(["albatross-tls-endpoint", "cacert.pem", "server.pem", "server.key"])
+
+# def user_add_policy():
+#     # User generates a signing request to allow a memory of 1024MB to run 16 unikernels on CPU IDs 0 and 1
+#     subprocess.run(["albatross-client", "add-policy", "user", "16", "--mem", "1024", "--cpu", "0", "--cpu", "1", "--csr"])
+
+# def ca_sign_user_request():
+#     # CA signs the user's request
+#     subprocess.run(["albatross-client", "sign", "cacert.pem", "db", "ca.key", "user.req"])
+

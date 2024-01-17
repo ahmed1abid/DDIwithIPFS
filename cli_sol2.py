@@ -6,6 +6,7 @@ import subprocess
 import os
 import requests
 import aiohttp
+from certif import Certif
 
 # Initialize user variables
 name = "DIMS"
@@ -41,9 +42,6 @@ def initialize_user():
     name = input()
     print(f"Hello {name}")
 
-    print("Please give your wallet file path: ", end="")
-    wallet_file = input() or "wallet.yaml"
-
     print("Enter your ssn: ", end="")
     ssn = int(input())
     print(f"Your SSN: {ssn}")
@@ -54,7 +52,7 @@ def initialize_user():
 
     try:
         # Create User instance and encrypt data
-        user = User(name=name, wallet_file=wallet_file, ssn=ssn, data=data)
+        user = User(name=name, ssn=ssn, data=data)
         user.encrypt_data()
         print("Wallet Loaded")
 
@@ -236,28 +234,30 @@ def create_vm(vm_name, remote, hook, ipv4, ipv4_gateway, port, tls, ssh_key, ssh
 
 def generate_ca():
     # Generate the root CA certificate and server keypair
-    subprocess.run(["albatross-client", "generate", "ca", "db"])
+    Certif.generate_ca()
 
 def server_start_endpoint():
-    # Server starts the endpoint using the server keypair and the root CA certificate
     subprocess.run(["albatross-tls-endpoint", "cacert.pem", "server.pem", "server.key"])
+def Destroy_vm() : 
+    # Destroying the vm 
+    subprocess.run(["albatross-client", "destroy", "unipi"])
 
 def user_add_policy():
     # User generates a signing request to allow a memory of 1024MB to run 16 unikernels on CPU IDs 0 and 1
-    subprocess.run(["albatross-client", "add-policy", "user", "16", "--mem", "1024", "--cpu", "0", "--cpu", "1", "--csr"])
+    Certif.user_add_policy()
 
 def ca_sign_user_request():
     # CA signs the user's request
-    subprocess.run(["albatross-client", "sign", "cacert.pem", "db", "ca.key", "user.req"])
+    Certif.ca_sign_user_request()
 
 
 def intermediate_sign_unipi_request():
     # Intermediate CA signs the request
-    subprocess.run(["albatross-client", "sign", "user.pem", "db", "user.key", "unipi.req"])
+    subprocess.run(["albatross-client", "sign", "key/user.pem", "db", "key/user.key", "key/user.req"])
 
 def client_create_remote_unipi():
     # Client sends the signed request to the server
-    subprocess.run(["albatross-client", "certificate", "cacert.pem", "unipi.pem", "unipi.key", "--destination", "10.0.0.10/24"])
+    subprocess.run(["albatross-client", "certificate", "key/cacert.pem", "key/unipi.pem", "key/unipi.key", "--destination", "10.0.0.10/24"])
 
 async def sign_vm():
     # Assuming you have functions for certificate generation and signing
@@ -268,7 +268,8 @@ async def sign_vm():
     # client_create_remote_unipi()
 
 async def create_vm_with_unipi():
-       
+    
+    await get_file_from_blockchain()
     ssh_key = "ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8="
     ssh_authenticator = "SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"
 
@@ -276,9 +277,9 @@ async def create_vm_with_unipi():
     subprocess.run([
         "sudo",
         "albatross-client", "create", "unipi", "unipi.hvt",
-        "--ca=user.pem",
-        "--ca-key=user.pem",
-        "--server-ca=cacert.pem",
+        "--ca=key/user.pem",
+        "--ca-key=key/user.pem",
+        "--server-ca=key/cacert.pem",
         "--net=service",
         "--arg=--ipv4=10.0.0.10/24",
         "--arg=--ipv4-gateway=10.0.0.254",
@@ -302,6 +303,14 @@ if __name__ == "__main__":
             if inp_list[1] in ['user']:
                 initialize_user()
 
+
+        elif inp_list[0] in ['destroy']:
+            if inp_list[1] in ['vm']:
+                Destroy_vm()
+            else:
+                print("there si a problem with the vm : either it's not creater or we dont have acces to it to delete it")
+
+
         elif inp_list[0] in ['send', 'store', 'upload']:
             if inp_list[1] in ['data']:
                 loop = asyncio.get_event_loop()
@@ -319,8 +328,6 @@ if __name__ == "__main__":
 
         elif inp_list[0] in ['create']:
             if inp_list[1] in ['vm']:
-                loop = asyncio.get_event_loop()
-                loop.run_until_complete(get_file_from_blockchain()) 
                 asyncio.run(create_vm_with_unipi())
 
 
