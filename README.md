@@ -137,36 +137,19 @@ Under the hood, what you basically want to do for seting up a similar architectu
 
     $ albatross-client console VMNAME
 
-Local (On Your Machine):
-
-This part involves the initial setup and creating a certificate signing request (CSR) for your user.
-
-    Generate the root CA certificate and server keypair:
-
-
-albatross-client generate ca db
-
-Create a signing request for your user:
-
-
-albatross-client add_policy user 16 --mem 1024 --cpu 0 --cpu 1 --csr
-
-Sign the user's request by the CA:
-
-albatross-client sign cacert.pem db ca.key user.req
-
-
-    Remote (On the Blockchain Node or Ganache CLI):
-
-This part involves the creation of an Albatross VM using the signed user request.
-
-    Create the Albatross VM:
-
- albatross-client create VMNAME 0xe4328460e96652d414a632c29c1034c6052c2510 --ca=user.pem --ca-key=user.pem --server-ca=cacert.pem --destination http://127.0.0.1:8545 --net=service --mem=128 --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254" --arg="--port=8443" --arg="--remote=https://github.com/ahmed1abid/DDIwithIPFS.git" --arg="--ssh-authenticator=SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU" --arg="--ssh-key=ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8=" --arg="--tls=false" --arg="--hook=/updatewebhook"
-
+L
 
 npx ganache -d --gasLimit 8000000000000 --miner.callGasLimit 80000000000
 
+albatross-client generate ca db
+albatross-tls-endpoint cacert.pem server.pem server.key
+
+   albatross-client add-policy user 16 --mem 1024 --cpu 0 --cpu 1 --csr --bridge=service
+  albatross-client create VMNAME unipi.hvt --csr  --net=service --mem=128 --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254" --arg="--port=  " --arg="--remote=https://github.com/ahmed1abid/Test.git" --arg="--tls=false" --arg="--hook=/updatewebhook"
+
+  albatross-client sign cacert.pem db ca.key user.req
+  albatross-client certificate --server-ca  cacert.pem VMNAME.pem VMNAME.key --destination 10.0.0.254
 
 
- sudo albatross-client create VMNAME /home/ahmed/Desktop/cyber/idenity/unipi/dist/unipi.spt --csr  --net=service --mem=128 --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254" --arg="--port=8443" --arg="--remote=https://github.com/ahmed1abid/Test.git" --arg="--tls=false" --arg="--hook=/updatewebhook"
+
+
