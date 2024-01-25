@@ -249,6 +249,8 @@ def user_add_policy():
 def ca_sign_user_request():
     # CA signs the user's request
     Certif.ca_sign_user_request()
+def sign_certificate_request():
+    Certif.sign_certificate_request("cacert.pem", "db", "key.pem", "user.req")
 
 
 def intermediate_sign_unipi_request():
@@ -270,13 +272,13 @@ async def sign_vm():
 async def create_vm_with_unipi():
     
     await get_file_from_blockchain()
-    ssh_key = "ed25519:2JueTxGu7icIG6jpfFDl4AEr4L6zTUbMkS+e2vW4B/8="
+    ssh_key = "rsa:fZ6C4YpxVTVjZErqfnzDAunGlv6Jn67pqj2epEDg"
     ssh_authenticator = "SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"
 
     # Execute the albatross-client command to create a VM with unipi.hvt
     subprocess.run([
         "sudo",
-        "albatross-client", "create", "unipi", "unipi.hvt",
+        "albatross-client", "create", "unipi", "/home/ahmed/Desktop/cyber/idenity/unipi/dist/unipi.spt",
         "--ca=key/user.pem",
         "--ca-key=key/user.pem",
         "--server-ca=key/cacert.pem",
@@ -284,7 +286,7 @@ async def create_vm_with_unipi():
         "--arg=--ipv4=10.0.0.10/24",
         "--arg=--ipv4-gateway=10.0.0.254",
         "--arg=--port=8443",
-        "--arg=--remote=https://github.com/ahmed1abid/DDIwithIPFS.git",
+        "--arg=--remote=https://github.com/ahmed1abid/Test.git",
         "--arg=--ssh-authenticator=" + ssh_authenticator,
         "--arg=--ssh-key=" + ssh_key,
         "--arg=--tls=false",
@@ -329,6 +331,9 @@ if __name__ == "__main__":
             if inp_list[1] in ['vm']:
                 asyncio.run(sign_vm())
 
+        elif inp_list[0] in ['sign']:
+            if inp_list[1] in ['certif']:
+             sign_certificate_request()
         elif inp_list[0] in ['create']:
             if inp_list[1] in ['vm']:
                 asyncio.run(create_vm_with_unipi())

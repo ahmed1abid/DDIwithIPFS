@@ -166,3 +166,7 @@ This part involves the creation of an Albatross VM using the signed user request
 
 
 npx ganache -d --gasLimit 8000000000000 --miner.callGasLimit 80000000000
+
+
+
+ sudo albatross-client create VMNAME /home/ahmed/Desktop/cyber/idenity/unipi/dist/unipi.spt --csr  --net=service --mem=128 --arg="--ipv4=10.0.0.10/24" --arg="--ipv4-gateway=10.0.0.254" --arg="--port=8443" --arg="--remote=https://github.com/ahmed1abid/Test.git" --arg="--tls=false" --arg="--hook=/updatewebhook"
